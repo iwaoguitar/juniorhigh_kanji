@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中学漢字 基礎トレーニング</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; background:#f4f6fb; color:#222; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+    .app { width:100%; max-width:760px; background:#fff; border-radius:24px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.12); }
+    h1 { margin:0 0 8px; font-size:28px; text-align:center; }
+    .subtitle { text-align:center; color:#666; margin-bottom:22px; font-size:16px; }
+    .settings { background:#f7f8fc; border-radius:18px; padding:14px; margin-bottom:18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:end; }
+    label { font-size:14px; color:#555; font-weight:bold; }
+    select,input[type="text"] { width:100%; margin-top:6px; font-size:18px; padding:12px; border:2px solid #d7deea; border-radius:12px; background:#fff; }
+    .status { display:flex; justify-content:space-between; gap:10px; margin-bottom:20px; font-size:16px; flex-wrap:wrap; }
+    .badge { background:#eef2ff; padding:10px 14px; border-radius:999px; font-weight:bold; }
+    .question-box { background:#fff8e8; border-radius:20px; padding:26px 16px; text-align:center; margin-bottom:18px; }
+    .question-label { font-size:16px; color:#666; margin-bottom:10px; }
+    .question { font-size:42px; font-weight:bold; letter-spacing:1px; line-height:1.4; }
+    .sentence { font-size:22px; line-height:1.7; margin-top:12px; }
+    button { width:100%; border:none; border-radius:16px; padding:16px; font-size:20px; font-weight:bold; cursor:pointer; margin-bottom:12px; }
+    .primary { background:#2f6fed; color:white; }
+    .secondary { background:#e8edf8; color:#25314d; }
+    .good { background:#dff5e7; color:#146c2e; }
+    .bad { background:#ffe3e3; color:#9d1c1c; }
+    .message { min-height:74px; padding:16px; border-radius:16px; background:#f3f5f9; font-size:18px; line-height:1.6; margin-top:4px; }
+    .correct { background:#e9f8ee; color:#146c2e; }
+    .wrong { background:#fff0f0; color:#9d1c1c; }
+    .result { text-align:center; font-size:26px; font-weight:bold; margin:20px 0; line-height:1.6; }
+    .history { font-size:15px; background:#f7f8fc; border-radius:16px; padding:14px; line-height:1.9; margin:16px 0; }
+    .hidden { display:none; }
+    .small-note { margin-top:18px; font-size:13px; color:#777; text-align:center; line-height:1.6; }
+    .mode-note { color:#2f6fed; font-weight:bold; text-align:center; margin:0 0 14px; }
+    .canvas-wrap { background:#fff; border:2px dashed #ccd3e0; border-radius:16px; padding:10px; margin-bottom:12px; }
+    canvas { width:100%; height:220px; display:block; background:linear-gradient(#eef1f6 1px,transparent 1px),linear-gradient(90deg,#eef1f6 1px,transparent 1px); background-size:44px 44px; border-radius:12px; touch-action:none; }
+    .answer { font-size:30px; font-weight:bold; text-align:center; background:#fff8e8; border-radius:16px; padding:18px; margin:12px 0; }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:560px){ .app{padding:20px;border-radius:20px}.settings,.row2{grid-template-columns:1fr}.question{font-size:34px}h1{font-size:24px}canvas{height:200px} }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>中学漢字 基礎トレーニング</h1>
+    <div class="subtitle">読み・書き取りランダムテスト</div>
+
+    <section id="settingArea">
+      <div class="settings">
+        <div><label for="gradeSelect">学年</label><select id="gradeSelect"><option value="j1">中学1年</option><option value="j2">中学2年</option><option value="j3">中学3年</option></select></div>
+        <div><label for="modeSelect">テストの種類</label><select id="modeSelect"><option value="reading">読みテスト</option><option value="writing">書き取りテスト</option><option value="mix">読み・書き取りミックス</option></select></div>
+        <div><label for="countSelect">問題数</label><select id="countSelect"><option value="5">5問</option><option value="10" selected>10問</option><option value="15">15問</option></select></div>
+        <div><label for="soundSelect">効果音</label><select id="soundSelect"><option value="on">あり</option><option value="off">なし</option></select></div>
+      </div>
+      <button class="primary" id="startButton">この設定でテスト開始</button>
+    </section>
+
+    <section id="quizArea" class="hidden">
+      <div id="modeNote" class="mode-note hidden">間違えた問題の復習モード</div>
+      <div class="status"><div class="badge">問題 <span id="questionNumber">1</span> / <span id="totalNumber">10</span></div><div class="badge">正解 <span id="score">0</span> 問</div></div>
+      <div class="question-box"><div class="question-label" id="questionLabel">次の漢字の読みを答えなさい</div><div class="question" id="questionText">準備中</div><div class="sentence" id="sentenceText"></div></div>
+
+      <div id="readingArea"><input id="readingInput" type="text" placeholder="ひらがなで入力"><button class="primary" id="checkReadingButton">答え合わせ</button></div>
+      <div id="writingArea" class="hidden"><div class="canvas-wrap"><canvas id="writingCanvas"></canvas></div><button class="secondary" id="clearCanvasButton">書き直す</button><button class="primary" id="showAnswerButton">答えを見る</button><div id="selfCheckArea" class="hidden"><div class="answer" id="answerText"></div><div class="row2"><button class="good" id="selfGoodButton">できた ○</button><button class="bad" id="selfBadButton">まちがえた ×</button></div></div></div>
+      <button class="secondary hidden" id="nextButton">次の問題へ</button><div class="message" id="message">答えを入力、または手書きして進めてください。</div>
+    </section>
+
+    <section id="resultArea" class="hidden"><div class="result" id="finalResult"></div><div class="history" id="history"></div><button class="primary hidden" id="reviewButton">間違えた問題を復習する</button><button class="secondary" id="restartButton">設定に戻る</button></section>
+    <div class="small-note">書き取りは自己採点方式です。Apple Pencilや指で書けます。<br>GitHub Pagesに置いて、iPadのSafariから使えます。</div>
+  </main>
+
+  <script>
+    var kanjiData={
+      j1:["握手|あくしゅ|友人と握手をする。","移動|いどう|教室を移動する。","宇宙|うちゅう|宇宙について学ぶ。","演奏|えんそう|ピアノを演奏する。","確認|かくにん|予定を確認する。","規則|きそく|規則を守る。","訓練|くんれん|避難訓練を行う。","経験|けいけん|貴重な経験をする。","効率|こうりつ|効率よく勉強する。","混雑|こんざつ|駅が混雑している。","姿勢|しせい|姿勢を正す。","準備|じゅんび|明日の準備をする。","責任|せきにん|責任を持つ。","態度|たいど|真剣な態度で聞く。","努力|どりょく|努力を続ける。","判断|はんだん|正しく判断する。","必要|ひつよう|準備が必要だ。","表現|ひょうげん|気持ちを表現する。","報告|ほうこく|結果を報告する。","約束|やくそく|約束を守る。"],
+      j2:["圧力|あつりょく|水の圧力を調べる。","依頼|いらい|仕事を依頼する。","影響|えいきょう|天気の影響を受ける。","価値|かち|作品の価値を考える。","環境|かんきょう|環境を守る。","技術|ぎじゅつ|新しい技術を学ぶ。","許可|きょか|先生の許可を得る。","経済|けいざい|経済の仕組みを学ぶ。","権利|けんり|権利を大切にする。","講演|こうえん|講演を聞く。","災害|さいがい|災害に備える。","資源|しげん|資源を大切に使う。","証明|しょうめい|身分を証明する。","情報|じょうほう|情報を集める。","制度|せいど|新しい制度が始まる。","伝統|でんとう|伝統を受け継ぐ。","能力|のうりょく|能力を伸ばす。","比較|ひかく|二つの資料を比較する。","複雑|ふくざつ|複雑な問題を解く。","利益|りえき|社会の利益を考える。"],
+      j3:["暗示|あんじ|結末を暗示する表現。","意義|いぎ|活動の意義を考える。","維持|いじ|健康を維持する。","応用|おうよう|知識を応用する。","概念|がいねん|新しい概念を理解する。","革新|かくしん|技術の革新が進む。","鑑賞|かんしょう|作品を鑑賞する。","貢献|こうけん|地域に貢献する。","克服|こくふく|苦手を克服する。","錯覚|さっかく|目の錯覚が起こる。","視野|しや|視野を広げる。","循環|じゅんかん|水が循環する。","象徴|しょうちょう|平和を象徴する鳥。","推測|すいそく|理由を推測する。","秩序|ちつじょ|社会の秩序を守る。","抽象|ちゅうしょう|抽象的な考え。","哲学|てつがく|哲学について語る。","普遍|ふへん|普遍的な価値。","矛盾|むじゅん|説明に矛盾がある。","倫理|りんり|倫理について考える。"]
+    };
+    Object.keys(kanjiData).forEach(function(g){ kanjiData[g]=kanjiData[g].map(function(s){var p=s.split("|");return{kanji:p[0],reading:p[1],sentence:p[2],writingPrompt:p[1]};}); });
+
+    var $=function(id){return document.getElementById(id)};
+    var settingArea=$("settingArea"),quizArea=$("quizArea"),resultArea=$("resultArea"),startButton=$("startButton"),gradeSelect=$("gradeSelect"),modeSelect=$("modeSelect"),countSelect=$("countSelect"),soundSelect=$("soundSelect"),questionNumber=$("questionNumber"),totalNumber=$("totalNumber"),scoreDisplay=$("score"),questionLabel=$("questionLabel"),questionText=$("questionText"),sentenceText=$("sentenceText"),readingArea=$("readingArea"),readingInput=$("readingInput"),checkReadingButton=$("checkReadingButton"),writingArea=$("writingArea"),writingCanvas=$("writingCanvas"),clearCanvasButton=$("clearCanvasButton"),showAnswerButton=$("showAnswerButton"),selfCheckArea=$("selfCheckArea"),answerText=$("answerText"),selfGoodButton=$("selfGoodButton"),selfBadButton=$("selfBadButton"),nextButton=$("nextButton"),message=$("message"),finalResult=$("finalResult"),history=$("history"),reviewButton=$("reviewButton"),restartButton=$("restartButton"),modeNote=$("modeNote");
+    var questions=[],reviewQuestions=[],currentIndex=0,score=0,currentQuestion=null,answered=false,results=[],reviewMode=false,drawing=false,ctx=null;
+    function shuffle(a){var c=a.slice();for(var i=c.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=c[i];c[i]=c[j];c[j]=t;}return c;}
+    function normalizeKana(t){return t.replace(/\s/g,"").replace(/[ァ-ン]/g,function(s){return String.fromCharCode(s.charCodeAt(0)-0x60);});}
+    function buildQuestions(){var base=shuffle(kanjiData[gradeSelect.value]);var selected=base.slice(0,Math.min(Number(countSelect.value),base.length));var list=[];selected.forEach(function(item){var m=modeSelect.value;if(m==="mix")m=Math.random()<.5?"reading":"writing";list.push({mode:m,kanji:item.kanji,reading:item.reading,sentence:item.sentence,writingPrompt:item.writingPrompt});});return list;}
+    function startQuiz(){questions=buildQuestions();reviewMode=false;startQuestionSet(questions);}
+    function startQuestionSet(list){currentIndex=0;score=0;results=[];answered=false;settingArea.classList.add("hidden");resultArea.classList.add("hidden");quizArea.classList.remove("hidden");modeNote.classList.toggle("hidden",!reviewMode);nextButton.classList.add("hidden");showQuestion();}
+    function showQuestion(){currentQuestion=questions[currentIndex];answered=false;questionNumber.textContent=currentIndex+1;totalNumber.textContent=questions.length;scoreDisplay.textContent=score;sentenceText.textContent=currentQuestion.sentence;message.className="message";nextButton.classList.add("hidden");selfCheckArea.classList.add("hidden");if(currentQuestion.mode==="reading"){questionLabel.textContent="次の漢字の読みを答えなさい";questionText.textContent=currentQuestion.kanji;readingArea.classList.remove("hidden");writingArea.classList.add("hidden");readingInput.value="";readingInput.disabled=false;checkReadingButton.classList.remove("hidden");message.textContent="ひらがなで読みを入力してください。";setTimeout(function(){readingInput.focus();},100);}else{questionLabel.textContent="次の読みを漢字で書きなさい";questionText.textContent="「"+currentQuestion.writingPrompt+"」";readingArea.classList.add("hidden");writingArea.classList.remove("hidden");showAnswerButton.classList.remove("hidden");clearCanvas();message.textContent="下の白い枠に、指やApple Pencilで書いてください。";}}
+    function checkReading(){if(answered)return;var user=normalizeKana(readingInput.value);if(user===""){message.className="message wrong";message.textContent="読みを入力してください。";return;}var correct=normalizeKana(currentQuestion.reading);var isCorrect=user===correct;answered=true;readingInput.disabled=true;checkReadingButton.classList.add("hidden");nextButton.classList.remove("hidden");if(isCorrect){score++;scoreDisplay.textContent=score;message.className="message correct";message.textContent="正解！";playTone("correct");}else{message.className="message wrong";message.textContent="不正解。正解は「"+currentQuestion.reading+"」です。";playTone("wrong");}saveResult(isCorrect,readingInput.value);nextButton.textContent=currentIndex+1>=questions.length?"結果を見る":"次の問題へ";}
+    function showWritingAnswer(){answerText.textContent="答え："+currentQuestion.kanji;selfCheckArea.classList.remove("hidden");showAnswerButton.classList.add("hidden");message.className="message";message.textContent="自分の字と答えを比べて、自己採点してください。";}
+    function selfCheck(isCorrect){if(answered)return;answered=true;nextButton.classList.remove("hidden");if(isCorrect){score++;scoreDisplay.textContent=score;message.className="message correct";message.textContent="できた！よく書けました。";playTone("correct");}else{message.className="message wrong";message.textContent="もう一度練習しましょう。";playTone("wrong");}saveResult(isCorrect,"自己採点");nextButton.textContent=currentIndex+1>=questions.length?"結果を見る":"次の問題へ";}
+    function saveResult(ok,user){results.push({mode:currentQuestion.mode,kanji:currentQuestion.kanji,reading:currentQuestion.reading,prompt:currentQuestion.mode==="reading"?currentQuestion.kanji:currentQuestion.writingPrompt,userAnswer:user,isCorrect:ok,questionObj:currentQuestion});}
+    function nextQuestion(){if(!answered)return;currentIndex++;if(currentIndex>=questions.length)showResult();else showQuestion();}
+    function showResult(){quizArea.classList.add("hidden");resultArea.classList.remove("hidden");var total=questions.length;var comment=score===total?"すばらしい！満点です！":score>=Math.ceil(total*.8)?"よくできました！あと少しで満点です。":score>=Math.ceil(total*.5)?"まずまずです。もう一度やると伸びます。":"ここから練習していきましょう。";finalResult.innerHTML=total+"問中 "+score+" 問正解<br>"+comment;history.innerHTML="<strong>今回の問題</strong><br>"+results.map(function(r,i){var mark=r.isCorrect?"○":"×";var type=r.mode==="reading"?"読み":"書き";var ans=r.mode==="reading"?r.reading:r.kanji;return(i+1)+". "+mark+"【"+type+"】"+r.prompt+"　正解："+ans;}).join("<br>");var wrongs=results.filter(function(r){return !r.isCorrect;}).map(function(r){return r.questionObj;});if(!reviewMode&&wrongs.length>0){reviewQuestions=wrongs;reviewButton.classList.remove("hidden");}else{reviewButton.classList.add("hidden");}}
+    function startReview(){reviewMode=true;questions=reviewQuestions.slice();startQuestionSet(questions);}
+    function backToSettings(){reviewMode=false;settingArea.classList.remove("hidden");quizArea.classList.add("hidden");resultArea.classList.add("hidden");modeNote.classList.add("hidden");}
+    function playTone(kind){if(soundSelect.value==="off")return;try{var AC=window.AudioContext||window.webkitAudioContext;var c=new AC();var o=c.createOscillator();var g=c.createGain();o.connect(g);g.connect(c.destination);if(kind==="correct"){o.frequency.setValueAtTime(660,c.currentTime);o.frequency.setValueAtTime(880,c.currentTime+.08);}else{o.frequency.setValueAtTime(220,c.currentTime);o.frequency.setValueAtTime(160,c.currentTime+.08);}g.gain.setValueAtTime(.08,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.22);o.start();o.stop(c.currentTime+.23);}catch(e){}}
+    function setupCanvas(){ctx=writingCanvas.getContext("2d");resizeCanvas();window.addEventListener("resize",resizeCanvas);writingCanvas.addEventListener("pointerdown",startDraw);writingCanvas.addEventListener("pointermove",draw);writingCanvas.addEventListener("pointerup",endDraw);writingCanvas.addEventListener("pointercancel",endDraw);writingCanvas.addEventListener("pointerleave",endDraw);}
+    function resizeCanvas(){var r=writingCanvas.getBoundingClientRect();var d=window.devicePixelRatio||1;writingCanvas.width=r.width*d;writingCanvas.height=r.height*d;ctx=writingCanvas.getContext("2d");ctx.setTransform(d,0,0,d,0,0);ctx.lineWidth=6;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#222";}
+    function getPoint(e){var r=writingCanvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+    function startDraw(e){drawing=true;var p=getPoint(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
+    function draw(e){if(!drawing)return;var p=getPoint(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
+    function endDraw(e){drawing=false;if(e)e.preventDefault();}
+    function clearCanvas(){if(!ctx)return;var r=writingCanvas.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);}
+    startButton.addEventListener("click",startQuiz);checkReadingButton.addEventListener("click",checkReading);readingInput.addEventListener("keydown",function(e){if(e.key==="Enter")checkReading();});showAnswerButton.addEventListener("click",showWritingAnswer);clearCanvasButton.addEventListener("click",clearCanvas);selfGoodButton.addEventListener("click",function(){selfCheck(true);});selfBadButton.addEventListener("click",function(){selfCheck(false);});nextButton.addEventListener("click",nextQuestion);reviewButton.addEventListener("click",startReview);restartButton.addEventListener("click",backToSettings);setupCanvas();
+  </script>
+</body>
+</html>
