@@ -1,0 +1,1 @@
+# juniorhigh_kanji
