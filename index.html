@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>中学漢字 基礎トレーニング</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; overscroll-behavior: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background: #f4f6fb;
+      color: #222;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    body.no-scroll { overflow: hidden; touch-action: none; }
+    .app {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; text-align: center; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 16px; }
+    .settings {
+      background: #f7f8fc;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: end;
+    }
+    label { font-size: 14px; color: #555; font-weight: bold; }
+    select, input[type="text"] {
+      width: 100%;
+      margin-top: 6px;
+      font-size: 18px;
+      padding: 12px;
+      border: 2px solid #d7deea;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .status { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 16px; font-size: 16px; flex-wrap: wrap; }
+    .badge { background: #eef2ff; padding: 10px 14px; border-radius: 999px; font-weight: bold; }
+    .question-box {
+      background: #fff8e8;
+      border-radius: 20px;
+      padding: 22px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .question-label { font-size: 16px; color: #666; margin-bottom: 10px; }
+    .question { font-size: 40px; font-weight: bold; letter-spacing: 1px; line-height: 1.4; }
+    .sentence { font-size: 22px; line-height: 1.7; margin-top: 12px; }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 12px;
+      touch-action: manipulation;
+    }
+    .primary { background: #2f6fed; color: white; }
+    .secondary { background: #e8edf8; color: #25314d; }
+    .good { background: #dff5e7; color: #146c2e; }
+    .bad { background: #ffe3e3; color: #9d1c1c; }
+    .message {
+      min-height: 70px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f3f5f9;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+    .correct { background: #e9f8ee; color: #146c2e; }
+    .wrong { background: #fff0f0; color: #9d1c1c; }
+    .result { text-align: center; font-size: 26px; font-weight: bold; margin: 20px 0; line-height: 1.6; }
+    .history { font-size: 15px; background: #f7f8fc; border-radius: 16px; padding: 14px; line-height: 1.9; margin: 16px 0; }
+    .hidden { display: none !important; }
+    .small-note { margin-top: 18px; font-size: 13px; color: #777; text-align: center; line-height: 1.6; }
+    .mode-note { color: #2f6fed; font-weight: bold; text-align: center; margin: 0 0 14px; }
+    .canvas-wrap {
+      background: #fff;
+      border: 3px solid #ccd3e0;
+      border-radius: 18px;
+      padding: 8px;
+      margin-bottom: 12px;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+    .canvas-guide {
+      text-align: center;
+      color: #666;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    canvas {
+      width: 100%;
+      height: 330px;
+      display: block;
+      border-radius: 12px;
+      touch-action: none;
+      background-color: #fff;
+      background-image:
+        linear-gradient(#e2e7f0 2px, transparent 2px),
+        linear-gradient(90deg, #e2e7f0 2px, transparent 2px),
+        linear-gradient(#f0c9c9 2px, transparent 2px),
+        linear-gradient(90deg, #f0c9c9 2px, transparent 2px);
+      background-size: 80px 80px, 80px 80px, 100% 50%, 50% 100%;
+      background-position: 0 0, 0 0, 0 50%, 50% 0;
+    }
+    .answer {
+      font-size: 34px;
+      font-weight: bold;
+      text-align: center;
+      background: #fff8e8;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 12px 0;
+    }
+    .row2, .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 560px) {
+      body { padding: 10px; }
+      .app { padding: 18px; border-radius: 20px; }
+      .settings, .row2, .toolbar { grid-template-columns: 1fr; }
+      .question { font-size: 32px; }
+      .sentence { font-size: 19px; }
+      h1 { font-size: 24px; }
+      canvas { height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>中学漢字 基礎トレーニング</h1>
+    <div class="subtitle">読み・書き取りランダムテスト</div>
+
+    <section id="settingArea">
+      <div class="settings">
+        <div><label for="gradeSelect">学年</label><select id="gradeSelect"><option value="j1">中学1年</option><option value="j2">中学2年</option><option value="j3">中学3年</option></select></div>
+        <div><label for="modeSelect">テストの種類</label><select id="modeSelect"><option value="reading">読みテスト</option><option value="writing">書き取りテスト</option><option value="mix">読み・書き取りミックス</option></select></div>
+        <div><label for="countSelect">問題数</label><select id="countSelect"><option value="5">5問</option><option value="10" selected>10問</option><option value="15">15問</option></select></div>
+        <div><label for="soundSelect">効果音</label><select id="soundSelect"><option value="on">あり</option><option value="off">なし</option></select></div>
+      </div>
+      <button class="primary" id="startButton">この設定でテスト開始</button>
+    </section>
+
+    <section id="quizArea" class="hidden">
+      <div id="modeNote" class="mode-note hidden">間違えた問題の復習モード</div>
+      <div class="status"><div class="badge">問題 <span id="questionNumber">1</span> / <span id="totalNumber">10</span></div><div class="badge">正解 <span id="score">0</span> 問</div></div>
+      <div class="question-box"><div class="question-label" id="questionLabel"></div><div class="question" id="questionText">準備中</div><div class="sentence" id="sentenceText"></div></div>
+
+      <div id="readingArea"><input id="readingInput" type="text" placeholder="ひらがなで入力"><button class="primary" id="checkReadingButton">答え合わせ</button></div>
+
+      <div id="writingArea" class="hidden">
+        <div class="canvas-guide">下のマスに、指で大きく書いてください</div>
+        <div class="canvas-wrap"><canvas id="writingCanvas"></canvas></div>
+        <div class="toolbar"><button class="secondary" id="clearCanvasButton">書き直す</button><button class="primary" id="showAnswerButton">答えを見る</button></div>
+        <div id="selfCheckArea" class="hidden"><div class="answer" id="answerText"></div><div class="row2"><button class="good" id="selfGoodButton">○ 書けた！</button><button class="bad" id="selfBadButton">× 練習しよう</button></div></div>
+      </div>
+
+      <button class="secondary hidden" id="nextButton">次の問題へ</button>
+      <div class="message" id="message"></div>
+    </section>
+
+    <section id="resultArea" class="hidden">
+      <div class="result" id="finalResult"></div>
+      <div class="history" id="history"></div>
+      <button class="primary hidden" id="reviewButton">間違えた問題を復習する</button>
+      <button class="secondary" id="restartButton">設定に戻る</button>
+    </section>
+
+    <div class="small-note">書き取りは自己採点方式です。指入力向けに手書き欄を大きくしています。<br>GitHub Pagesに置いて、iPadのSafariから使えます。</div>
+  </main>
+
+  <script>
+    var kanjiData = {
+      j1: [["握手","あくしゅ","友人と__をする。"],["移動","いどう","教室を__する。"],["宇宙","うちゅう","__について学ぶ。"],["演奏","えんそう","ピアノを__する。"],["確認","かくにん","予定を__する。"],["規則","きそく","__を守る。"],["訓練","くんれん","避難__を行う。"],["経験","けいけん","貴重な__をする。"],["効率","こうりつ","__よく勉強する。"],["混雑","こんざつ","駅が__している。"],["姿勢","しせい","__を正す。"],["準備","じゅんび","明日の__をする。"],["責任","せきにん","__を持つ。"],["態度","たいど","真剣な__で聞く。"],["努力","どりょく","__を続ける。"],["判断","はんだん","正しく__する。"],["必要","ひつよう","__なものを用意する。"],["表現","ひょうげん","気持ちを__する。"],["報告","ほうこく","結果を__する。"],["約束","やくそく","__を守る。"]],
+      j2: [["圧力","あつりょく","水の__を調べる。"],["依頼","いらい","仕事を__する。"],["影響","えいきょう","天気の__を受ける。"],["価値","かち","作品の__を考える。"],["環境","かんきょう","__を守る。"],["技術","ぎじゅつ","新しい__を学ぶ。"],["許可","きょか","先生の__を得る。"],["経済","けいざい","__の仕組みを学ぶ。"],["権利","けんり","__を大切にする。"],["講演","こうえん","__を聞く。"],["災害","さいがい","__に備える。"],["資源","しげん","__を大切に使う。"],["証明","しょうめい","身分を__する。"],["情報","じょうほう","__を集める。"],["制度","せいど","新しい__が始まる。"],["伝統","でんとう","__を受け継ぐ。"],["能力","のうりょく","__を伸ばす。"],["比較","ひかく","二つの資料を__する。"],["複雑","ふくざつ","__な問題を解く。"],["利益","りえき","社会の__を考える。"]],
+      j3: [["暗示","あんじ","結末を__する表現。"],["意義","いぎ","活動の__を考える。"],["維持","いじ","健康を__する。"],["応用","おうよう","知識を__する。"],["概念","がいねん","新しい__を理解する。"],["革新","かくしん","技術の__が進む。"],["鑑賞","かんしょう","作品を__する。"],["貢献","こうけん","地域に__する。"],["克服","こくふく","苦手を__する。"],["錯覚","さっかく","目の__が起こる。"],["視野","しや","__を広げる。"],["循環","じゅんかん","水が__する。"],["象徴","しょうちょう","平和を__する鳥。"],["推測","すいそく","理由を__する。"],["秩序","ちつじょ","社会の__を守る。"],["抽象","ちゅうしょう","__的な考え。"],["哲学","てつがく","__について語る。"],["普遍","ふへん","__的な価値。"],["矛盾","むじゅん","説明に__がある。"],["倫理","りんり","__について考える。"]]
+    };
+
+    function $(id){ return document.getElementById(id); }
+    var settingArea=$("settingArea"), quizArea=$("quizArea"), resultArea=$("resultArea");
+    var gradeSelect=$("gradeSelect"), modeSelect=$("modeSelect"), countSelect=$("countSelect"), soundSelect=$("soundSelect");
+    var questionNumber=$("questionNumber"), totalNumber=$("totalNumber"), scoreDisplay=$("score");
+    var questionLabel=$("questionLabel"), questionText=$("questionText"), sentenceText=$("sentenceText");
+    var readingArea=$("readingArea"), readingInput=$("readingInput"), checkReadingButton=$("checkReadingButton");
+    var writingArea=$("writingArea"), writingCanvas=$("writingCanvas");
+    var clearCanvasButton=$("clearCanvasButton"), showAnswerButton=$("showAnswerButton");
+    var selfCheckArea=$("selfCheckArea"), answerText=$("answerText"), selfGoodButton=$("selfGoodButton"), selfBadButton=$("selfBadButton");
+    var nextButton=$("nextButton"), message=$("message"), finalResult=$("finalResult"), history=$("history");
+    var reviewButton=$("reviewButton"), restartButton=$("restartButton"), modeNote=$("modeNote"), startButton=$("startButton");
+    var questions=[], reviewQuestions=[], currentIndex=0, score=0, currentQuestion=null, answered=false, results=[], reviewMode=false;
+    var ctx=null, drawing=false, lastPoint=null, hasDrawn=false;
+
+    function shuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+    function makeQuestionObject(row, mode){ return { mode: mode, kanji: row[0], reading: row[1], readingSentence: row[2].replace("__", row[0]), writingSentence: row[2].replace("__", "（　　　）"), writingPrompt: row[1] }; }
+    function buildQuestions(){ var rows=shuffle(kanjiData[gradeSelect.value]).slice(0, Number(countSelect.value)); var list=[], mode=modeSelect.value; for(var i=0;i<rows.length;i++){ var qmode = mode==="mix" ? (Math.random()<0.5 ? "reading" : "writing") : mode; list.push(makeQuestionObject(rows[i], qmode)); } return list; }
+    function normalizeKana(text){ return String(text).replace(/\\s/g,"").replace(/[ァ-ン]/g,function(s){ return String.fromCharCode(s.charCodeAt(0)-0x60); }); }
+    function startQuiz(){ reviewMode=false; questions=buildQuestions(); startQuestionSet(); }
+    function startQuestionSet(){ currentIndex=0; score=0; results=[]; answered=false; settingArea.classList.add("hidden"); resultArea.classList.add("hidden"); quizArea.classList.remove("hidden"); modeNote.classList.toggle("hidden", !reviewMode); showQuestion(); }
+    function showQuestion(){
+      currentQuestion=questions[currentIndex]; answered=false; hasDrawn=false;
+      questionNumber.textContent=currentIndex+1; totalNumber.textContent=questions.length; scoreDisplay.textContent=score;
+      message.className="message"; nextButton.classList.add("hidden"); selfCheckArea.classList.add("hidden");
+      if(currentQuestion.mode==="reading"){
+        questionLabel.textContent="次の漢字の読みを答えなさい"; questionText.textContent=currentQuestion.kanji; sentenceText.textContent=currentQuestion.readingSentence;
+        readingArea.classList.remove("hidden"); writingArea.classList.add("hidden"); readingInput.value=""; readingInput.disabled=false; checkReadingButton.classList.remove("hidden");
+        message.textContent="ひらがなで読みを入力してください。"; setTimeout(function(){ readingInput.focus(); }, 100);
+      } else {
+        questionLabel.textContent="次の読みを漢字で書きなさい"; questionText.textContent="「" + currentQuestion.writingPrompt + "」"; sentenceText.textContent=currentQuestion.writingSentence;
+        readingArea.classList.add("hidden"); writingArea.classList.remove("hidden"); showAnswerButton.classList.remove("hidden");
+        message.textContent="下のマスに、指で大きく書いてください。例文の答えは隠しています。"; resizeCanvas(); clearCanvas();
+      }
+    }
+    function checkReading(){
+      if(answered) return; var user=normalizeKana(readingInput.value);
+      if(user===""){ message.className="message wrong"; message.textContent="読みを入力してください。"; return; }
+      var ok=user===normalizeKana(currentQuestion.reading); answered=true; readingInput.disabled=true; checkReadingButton.classList.add("hidden"); nextButton.classList.remove("hidden");
+      if(ok){ score++; scoreDisplay.textContent=score; message.className="message correct"; message.textContent="正解！"; playTone("correct"); }
+      else { message.className="message wrong"; message.textContent="不正解。正解は「"+currentQuestion.reading+"」です。"; playTone("wrong"); }
+      saveResult(ok, readingInput.value); nextButton.textContent=currentIndex+1>=questions.length ? "結果を見る" : "次の問題へ";
+    }
+    function showWritingAnswer(){
+      if(!hasDrawn){ message.className="message wrong"; message.textContent="まずは一度、マスに書いてみましょう。"; return; }
+      answerText.textContent="答え：" + currentQuestion.kanji; selfCheckArea.classList.remove("hidden"); showAnswerButton.classList.add("hidden"); message.className="message"; message.textContent="自分の字と答えを比べて、自己採点してください。";
+    }
+    function selfCheck(ok){
+      if(answered) return; answered=true; nextButton.classList.remove("hidden");
+      if(ok){ score++; scoreDisplay.textContent=score; message.className="message correct"; message.textContent="できた！よく書けました。"; playTone("correct"); }
+      else { message.className="message wrong"; message.textContent="もう一度練習しましょう。"; playTone("wrong"); }
+      saveResult(ok, "自己採点"); nextButton.textContent=currentIndex+1>=questions.length ? "結果を見る" : "次の問題へ";
+    }
+    function saveResult(ok, user){ results.push({ mode: currentQuestion.mode, kanji: currentQuestion.kanji, reading: currentQuestion.reading, prompt: currentQuestion.mode==="reading" ? currentQuestion.kanji : currentQuestion.writingPrompt, userAnswer: user, isCorrect: ok, questionObj: currentQuestion }); }
+    function nextQuestion(){ if(!answered) return; currentIndex++; if(currentIndex>=questions.length) showResult(); else showQuestion(); }
+    function showResult(){
+      quizArea.classList.add("hidden"); resultArea.classList.remove("hidden");
+      var total=questions.length; var comment= score===total ? "すばらしい！満点です！" : score>=Math.ceil(total*0.8) ? "よくできました！あと少しで満点です。" : score>=Math.ceil(total*0.5) ? "まずまずです。もう一度やると伸びます。" : "ここから練習していきましょう。";
+      finalResult.innerHTML=total+"問中 "+score+" 問正解<br>"+comment;
+      history.innerHTML="<strong>今回の問題</strong><br>"+results.map(function(r,i){ var mark=r.isCorrect?"○":"×", type=r.mode==="reading"?"読み":"書き", ans=r.mode==="reading"?r.reading:r.kanji; return (i+1)+". "+mark+"【"+type+"】"+r.prompt+"　正解："+ans; }).join("<br>");
+      var wrongs=results.filter(function(r){return !r.isCorrect;}).map(function(r){return r.questionObj;});
+      if(!reviewMode && wrongs.length>0){ reviewQuestions=wrongs; reviewButton.classList.remove("hidden"); } else { reviewButton.classList.add("hidden"); }
+    }
+    function startReview(){ reviewMode=true; questions=reviewQuestions.slice(); startQuestionSet(); }
+    function backToSettings(){ reviewMode=false; settingArea.classList.remove("hidden"); quizArea.classList.add("hidden"); resultArea.classList.add("hidden"); modeNote.classList.add("hidden"); }
+    function playTone(kind){
+      if(soundSelect.value==="off") return;
+      try{ var AC=window.AudioContext||window.webkitAudioContext, audio=new AC(), osc=audio.createOscillator(), gain=audio.createGain(); osc.connect(gain); gain.connect(audio.destination);
+        if(kind==="correct"){ osc.frequency.setValueAtTime(660,audio.currentTime); osc.frequency.setValueAtTime(880,audio.currentTime+0.08); } else { osc.frequency.setValueAtTime(220,audio.currentTime); osc.frequency.setValueAtTime(160,audio.currentTime+0.08); }
+        gain.gain.setValueAtTime(0.08,audio.currentTime); gain.gain.exponentialRampToValueAtTime(0.001,audio.currentTime+0.22); osc.start(); osc.stop(audio.currentTime+0.23);
+      }catch(e){}
+    }
+    function setupCanvas(){
+      ctx=writingCanvas.getContext("2d"); resizeCanvas(); window.addEventListener("resize", resizeCanvas);
+      writingCanvas.addEventListener("touchstart", function(e){e.preventDefault();}, {passive:false}); writingCanvas.addEventListener("touchmove", function(e){e.preventDefault();}, {passive:false});
+      writingCanvas.addEventListener("pointerdown", startDraw); writingCanvas.addEventListener("pointermove", draw); writingCanvas.addEventListener("pointerup", endDraw); writingCanvas.addEventListener("pointercancel", endDraw); writingCanvas.addEventListener("pointerleave", endDraw);
+    }
+    function resizeCanvas(){ var rect=writingCanvas.getBoundingClientRect(); if(rect.width===0) return; var dpr=window.devicePixelRatio||1; writingCanvas.width=Math.floor(rect.width*dpr); writingCanvas.height=Math.floor(rect.height*dpr); ctx=writingCanvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=10; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#111"; }
+    function getPoint(e){ var rect=writingCanvas.getBoundingClientRect(); return {x:e.clientX-rect.left, y:e.clientY-rect.top}; }
+    function startDraw(e){ drawing=true; hasDrawn=true; document.body.classList.add("no-scroll"); if(writingCanvas.setPointerCapture) writingCanvas.setPointerCapture(e.pointerId); lastPoint=getPoint(e); ctx.beginPath(); ctx.moveTo(lastPoint.x,lastPoint.y); e.preventDefault(); }
+    function draw(e){ if(!drawing) return; var p=getPoint(e), mid={x:(lastPoint.x+p.x)/2, y:(lastPoint.y+p.y)/2}; ctx.quadraticCurveTo(lastPoint.x,lastPoint.y,mid.x,mid.y); ctx.stroke(); lastPoint=p; e.preventDefault(); }
+    function endDraw(e){ if(!drawing) return; drawing=false; document.body.classList.remove("no-scroll"); if(e && writingCanvas.releasePointerCapture){ try{ writingCanvas.releasePointerCapture(e.pointerId); }catch(err){} } if(e) e.preventDefault(); }
+    function clearCanvas(){ if(!ctx) return; var rect=writingCanvas.getBoundingClientRect(); ctx.clearRect(0,0,rect.width,rect.height); hasDrawn=false; selfCheckArea.classList.add("hidden"); showAnswerButton.classList.remove("hidden"); }
+    startButton.addEventListener("click", startQuiz); checkReadingButton.addEventListener("click", checkReading); readingInput.addEventListener("keydown", function(e){ if(e.key==="Enter") checkReading(); });
+    showAnswerButton.addEventListener("click", showWritingAnswer); clearCanvasButton.addEventListener("click", clearCanvas); selfGoodButton.addEventListener("click", function(){ selfCheck(true); }); selfBadButton.addEventListener("click", function(){ selfCheck(false); });
+    nextButton.addEventListener("click", nextQuestion); reviewButton.addEventListener("click", startReview); restartButton.addEventListener("click", backToSettings); setupCanvas();
+  </script>
+</body>
+</html>
